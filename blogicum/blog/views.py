@@ -3,11 +3,13 @@ from .models import Post, Category
 from django.utils import timezone
 
 
+def get_published_posts():
+    return Post.published.select_related('category', 'author', 'location')
+
+
 def index(request):
     template = 'blog/index.html'
-    posts = Post.published.select_related(
-        'category', 'author', 'location'
-    )[:5]
+    posts = get_published_posts()[:5]
     context = {'post_list': posts}
     return render(request, template, context)
 
@@ -15,7 +17,7 @@ def index(request):
 def post_detail(request, pk):
     template = 'blog/detail.html'
     matched_post = get_object_or_404(
-        Post.published.select_related('category', 'author', 'location'),
+        get_published_posts(),
         id=pk
     )
     context = {'post': matched_post}
